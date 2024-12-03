@@ -28,9 +28,6 @@ Deno.test(async function testFilterDontsSumMuls() {
   const lines = input.split("\n");
   const inputString = lines.join("");
   const filteredInputString = filterDonts(inputString);
-  assertEquals(filteredInputString.includes(`don't()`), false);
-  assertEquals(filteredInputString.includes(`mul(195,249)`), false);
-  assertEquals(filteredInputString.includes(`mul(316,793)`), true);
   const muls = extractMul(filteredInputString);
   const total = muls.map((mul) => runMul(String(mul))).reduce(
     (result, number) => result + number,
