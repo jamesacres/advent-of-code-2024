@@ -78,4 +78,48 @@ const wordsearch = (word: string, puzzleLines: string[]) => {
   return totalMatches;
 };
 
-export { wordsearch };
+const findSquares = (puzzleLines: string[]) => {
+  const width = puzzleLines[0].length;
+  const height = puzzleLines.length;
+
+  const squares = [];
+  // Left to right, top to bottom
+  for (let row = 0; row < height - 2; row++) {
+    for (
+      let col = 0;
+      col < width - 2;
+      col++
+    ) {
+      squares.push([
+        `${puzzleLines[row].charAt(col)}${puzzleLines[row].charAt(col + 1)}${
+          puzzleLines[row].charAt(col + 2)
+        }`,
+        `${puzzleLines[row + 1].charAt(col)}${
+          puzzleLines[row + 1].charAt(col + 1)
+        }${puzzleLines[row + 1].charAt(col + 2)}`,
+        `${puzzleLines[row + 2].charAt(col)}${
+          puzzleLines[row + 2].charAt(col + 1)
+        }${puzzleLines[row + 2].charAt(col + 2)}`,
+      ]);
+    }
+  }
+  return squares;
+};
+
+const xsearch = (word: string, puzzleLines: string[]) => {
+  // We want to iterate 3x3 squares, which each has 2 diagonals
+  // Then confirm if both diagonals contain the word
+  const matchingSquares = [];
+  const squares = findSquares(puzzleLines);
+  for (const square of squares) {
+    const [a, b] = diagonals(square).filter((diagonal) =>
+      diagonal.length >= word.length
+    );
+    if (matchesOnLine(word, a) && matchesOnLine(word, b)) {
+      matchingSquares.push(square);
+    }
+  }
+  return matchingSquares.length;
+};
+
+export { wordsearch, xsearch };

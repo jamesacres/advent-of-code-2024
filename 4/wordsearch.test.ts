@@ -1,7 +1,7 @@
 import { assertEquals } from "@std/assert/equals";
-import { wordsearch } from "./wordsearch.ts";
+import { wordsearch, xsearch } from "./wordsearch.ts";
 
-Deno.test(async function testFilterDonts() {
+Deno.test(function testWordsearch() {
   const count = wordsearch(
     "XMAS",
     [
@@ -20,7 +20,7 @@ Deno.test(async function testFilterDonts() {
   assertEquals(count, 18);
 });
 
-Deno.test(async function testFilterDonts() {
+Deno.test(async function testWordsearchInput() {
   const input = await Deno.readTextFile("./4/input.txt");
   const lines = input.split("\n");
   const count = wordsearch(
@@ -28,4 +28,33 @@ Deno.test(async function testFilterDonts() {
     lines,
   );
   assertEquals(count, 2536);
+});
+
+Deno.test(function testXsearch() {
+  const count = xsearch(
+    "MAS", // trying to find an X of MAS
+    [
+      "MMMSXXMASM",
+      "MSAMXMSMSA",
+      "AMXSXMAAMM",
+      "MSAMASMSMX",
+      "XMASAMXAMM",
+      "XXAMMXXAMA",
+      "SMSMSASXSS",
+      "SAXAMASAAA",
+      "MAMMMXMMMM",
+      "MXMXAXMASX",
+    ],
+  );
+  assertEquals(count, 9);
+});
+
+Deno.test(async function testWordsearchInput() {
+  const input = await Deno.readTextFile("./4/input.txt");
+  const lines = input.split("\n");
+  const count = xsearch(
+    "MAS", // trying to find an X of MAS
+    lines,
+  );
+  assertEquals(count, 1875);
 });
