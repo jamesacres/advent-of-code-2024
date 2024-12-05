@@ -1,5 +1,6 @@
 import { assertEquals } from "@std/assert/equals";
-import { getCorrectUpdates, getMiddlePage } from "./pageOrdering.ts";
+import { getMiddlePage, getUpdates } from "./pageOrdering.ts";
+import { fixUpdate } from "./pageOrdering.ts";
 
 const example = `47|53
 97|13
@@ -38,7 +39,7 @@ Deno.test(function exampleCorrectUpdates() {
     line && !line.includes("|")
   );
 
-  assertEquals(getCorrectUpdates(updates, pageOrderingRules), [
+  assertEquals(getUpdates(updates, pageOrderingRules).correct, [
     [
       75,
       47,
@@ -70,7 +71,7 @@ Deno.test(function exampleCorrectUpdatesMiddles() {
   );
 
   assertEquals(
-    getCorrectUpdates(updates, pageOrderingRules).map(getMiddlePage),
+    getUpdates(updates, pageOrderingRules).correct.map(getMiddlePage),
     [
       61,
       53,
@@ -88,7 +89,7 @@ Deno.test(function exampleCorrectUpdatesMiddlesSum() {
   );
 
   assertEquals(
-    getCorrectUpdates(updates, pageOrderingRules).map(getMiddlePage).reduce((
+    getUpdates(updates, pageOrderingRules).correct.map(getMiddlePage).reduce((
       result,
       number,
     ) => result + number),
@@ -107,10 +108,70 @@ Deno.test(async function inputCorrectUpdatesMiddlesSum() {
   );
 
   assertEquals(
-    getCorrectUpdates(updates, pageOrderingRules).map(getMiddlePage).reduce((
+    getUpdates(updates, pageOrderingRules).correct.map(getMiddlePage).reduce((
       result,
       number,
     ) => result + number),
     4689,
+  );
+});
+
+Deno.test(function exampleFixIncorrectUpdates() {
+  const pageOrderingRules = example.split("\n").filter((line) =>
+    line.includes("|")
+  );
+  const updates = example.split("\n").filter((line) =>
+    line && !line.includes("|")
+  );
+
+  const incorrectUpdates = getUpdates(updates, pageOrderingRules).incorrect;
+  const correctedUpdates = incorrectUpdates.map((update) =>
+    fixUpdate(update, pageOrderingRules)
+  );
+
+  assertEquals(correctedUpdates, [
+    [
+      97,
+      75,
+      47,
+      61,
+      53,
+    ],
+    [
+      61,
+      29,
+      13,
+    ],
+    [
+      97,
+      75,
+      47,
+      29,
+      13,
+    ],
+  ]);
+});
+
+Deno.test(async function inputFixIncorrectUpdates() {
+  const input = await Deno.readTextFile("./5/input.txt");
+
+  const pageOrderingRules = input.split("\n").filter((line) =>
+    line.includes("|")
+  );
+  const updates = input.split("\n").filter((line) =>
+    line && !line.includes("|")
+  );
+
+  const incorrectUpdates = getUpdates(updates, pageOrderingRules).incorrect;
+  const correctedUpdates = incorrectUpdates.map((update) =>
+    fixUpdate(update, pageOrderingRules)
+  );
+
+  assertEquals(
+    correctedUpdates.map(getMiddlePage).reduce((
+      result,
+      number,
+    ) => result + number),
+    6336,
   );
 });
