@@ -1,11 +1,11 @@
-enum Direction {
+export enum Direction {
   UP = "^",
   DOWN = "v",
   LEFT = "<",
   RIGHT = ">",
 }
 
-enum State {
+export enum State {
   EMPTY = ".",
   OBSTACLE = "#",
   GUARD_UP = Direction.UP,
@@ -94,7 +94,11 @@ const getVisitedMap = (map: Map<State>): Map<number> => {
     });
   });
   // Iterate guard position until she leaves the grid
+  let retracingStepsCount = 0;
   while (guardPosition && guardDirection && max) {
+    if (retracingStepsCount === 10) {
+      throw Error("loop detected");
+    }
     // Calculate next location
     const nextLocation = getNextLocation(guardPosition, guardDirection, max);
     // Move out of old position
@@ -106,6 +110,13 @@ const getVisitedMap = (map: Map<State>): Map<number> => {
         guardPosition = nextLocation;
         visitedMap[guardPosition.x][guardPosition.y] =
           visitedMap[guardPosition.x][guardPosition.y] + 1;
+
+        if (
+          visitedMap[guardPosition.x][guardPosition.y] > retracingStepsCount
+        ) {
+          // Keep track of the max times we have retraced our steps
+          retracingStepsCount = visitedMap[guardPosition.x][guardPosition.y];
+        }
       } else if (map[nextLocation.x][nextLocation.y] === State.OBSTACLE) {
         // Turn right 90 degrees
         guardDirection = turnRight(guardDirection);
