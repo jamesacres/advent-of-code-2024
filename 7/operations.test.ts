@@ -1,5 +1,5 @@
 import { assertEquals } from "@std/assert/equals";
-import { findValidOperations } from "./operations.ts";
+import { findValidOperations, Operator } from "./operations.ts";
 
 const example = `190: 10 19
 3267: 81 40 27
@@ -18,7 +18,7 @@ Deno.test(function exampleFindValidOperations() {
     return { numbers, total: Number(total) };
   });
   assertEquals(
-    findValidOperations(equations),
+    findValidOperations(equations, [Operator.MULTIPLY, Operator.PLUS]),
     [{
       hasValidOperations: true,
       numbers: [
@@ -102,13 +102,34 @@ Deno.test(function exampleSumNumbersForValidOperations() {
     return { numbers, total: Number(total) };
   });
   assertEquals(
-    findValidOperations(equations).filter(({ hasValidOperations }) =>
-      hasValidOperations
-    ).reduce(
+    findValidOperations(equations, [Operator.MULTIPLY, Operator.PLUS]).filter((
+      { hasValidOperations },
+    ) => hasValidOperations).reduce(
       (result, { total }) => result + total,
       0,
     ),
     3749,
+  );
+});
+
+Deno.test(function exampleSumNumbersForValidOperationsConcatenation() {
+  const equations = example.split("\n").map((line) => {
+    const [total, rest] = line.split(": ");
+    const numbers = rest.split(" ").map(Number);
+    return { numbers, total: Number(total) };
+  });
+  assertEquals(
+    findValidOperations(equations, [
+      Operator.MULTIPLY,
+      Operator.PLUS,
+      Operator.CONCATENATION,
+    ]).filter((
+      { hasValidOperations },
+    ) => hasValidOperations).reduce(
+      (result, { total }) => result + total,
+      0,
+    ),
+    11387,
   );
 });
 
@@ -120,12 +141,16 @@ Deno.test(async function inputSumNumbersForValidOperations() {
     return { numbers, total: Number(total) };
   });
   assertEquals(
-    findValidOperations(equations).filter(({ hasValidOperations }) =>
-      hasValidOperations
-    ).reduce(
+    findValidOperations(equations, [
+      Operator.MULTIPLY,
+      Operator.PLUS,
+      Operator.CONCATENATION,
+    ]).filter((
+      { hasValidOperations },
+    ) => hasValidOperations).reduce(
       (result, { total }) => result + total,
       0,
     ),
-    10741443549536,
+    500335179214836,
   );
 });

@@ -1,20 +1,33 @@
-enum Operator {
+export enum Operator {
   PLUS = "+",
   MULTIPLY = "*",
+  CONCATENATION = "||",
 }
 
 type CalculateResult = {
-  [operator in Operator]: { result: number; next?: CalculateResult };
+  [operator in Operator]?: { result: number; next?: CalculateResult };
 };
-const calculate = (a: number, b: number): CalculateResult => {
+const calculate = (
+  a: number,
+  b: number,
+  operators: Operator[],
+): CalculateResult => {
   return {
-    [Operator.PLUS]: { result: a + b },
-    [Operator.MULTIPLY]: { result: a * b },
+    ...(operators.includes(Operator.PLUS)
+      ? { [Operator.PLUS]: { result: a + b } }
+      : {}),
+    ...(operators.includes(Operator.MULTIPLY)
+      ? { [Operator.MULTIPLY]: { result: a * b } }
+      : {}),
+    ...(operators.includes(Operator.CONCATENATION)
+      ? { [Operator.CONCATENATION]: { result: Number(`${a}${b}`) } }
+      : {}),
   };
 };
 
 const hasValidOperations = (
   { total, numbers }: { total: number; numbers: number[] },
+  operators: Operator[],
 ): boolean => {
   let possibleOperations: CalculateResult;
   let lastPointers: CalculateResult[] = [];
@@ -25,7 +38,7 @@ const hasValidOperations = (
     const isLastNumber = numbers.length === i + 2;
     lastPointers = [];
     if (typeof left === "number") {
-      possibleOperations = calculate(left, right);
+      possibleOperations = calculate(left, right, operators);
       lastPointers.push(possibleOperations);
       if (
         isLastNumber &&
@@ -36,7 +49,7 @@ const hasValidOperations = (
     } else {
       for (const lastPointer of left) {
         Object.entries(lastPointer).forEach(([_operator, result]) => {
-          result.next = calculate(result.result, right);
+          result.next = calculate(result.result, right, operators);
           lastPointers.push(result.next);
           if (
             isLastNumber &&
@@ -53,11 +66,12 @@ const hasValidOperations = (
 
 const findValidOperations = (
   equations: { total: number; numbers: number[] }[],
+  operators: Operator[],
 ): { total: number; numbers: number[]; hasValidOperations: boolean }[] => {
   return equations.map((equation) => {
     return {
       ...equation,
-      hasValidOperations: hasValidOperations(equation),
+      hasValidOperations: hasValidOperations(equation, operators),
     };
   });
 };
