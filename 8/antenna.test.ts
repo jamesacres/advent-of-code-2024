@@ -52,12 +52,51 @@ Deno.test(function exampleStringWithAntinodesCount() {
   );
 });
 
-Deno.test(async function inputStringWithAntinodes() {
+Deno.test(async function inputStringWithAntinodesCount() {
   const input = await Deno.readTextFile("./8/input.txt");
   const map = getMap(input);
   setAntinodes(map);
   assertEquals(
     countAntinodes(map),
     394,
+  );
+});
+
+Deno.test(function exampleStringWithAntinodesExtended() {
+  const map = getMap(example);
+  setAntinodes(map, true);
+  assertEquals(
+    mapToString(map),
+    `##....#....#
+.#.#....0...
+..#.#0....#.
+..##...0....
+....0....#..
+.#...#A....#
+...#..#.....
+#....#.#....
+..#.....A...
+....#....A..
+.#........#.
+...#......##`,
+  );
+});
+
+Deno.test(function exampleStringWithAntinodesExtendedCount() {
+  const map = getMap(example);
+  setAntinodes(map, true);
+  assertEquals(
+    countAntinodes(map),
+    34,
+  );
+});
+
+Deno.test(async function inputStringWithAntinodesExtendedCount() {
+  const input = await Deno.readTextFile("./8/input.txt");
+  const map = getMap(input);
+  setAntinodes(map, true);
+  assertEquals(
+    countAntinodes(map),
+    1277,
   );
 });
