@@ -11,58 +11,49 @@ interface Map<T> {
   };
 }
 
-export enum Direction {
-  N = "N",
-  S = "S",
-  E = "E",
-  W = "W",
-  NE = "NE",
-  NW = "NW",
-  SE = "SE",
-  SW = "SW",
-}
+const findAllAntinodes = (
+  origin: { x: number; y: number; frequency: string },
+  map: Map<State>,
+) => {
+  const maxx = Object.keys(map).length;
+  const maxy = Object.keys(map[0]).length;
+  [...new Array(maxy)].map((_, y) => {
+    [...new Array(maxx)].map((_, x) => {
+      const comparison = map[x][y];
+      if (comparison.frequency === origin.frequency) {
+        // Taxicab distance
+        const distance = {
+          x: x - origin.x,
+          y: y - origin.y,
+        };
+        // Set an antinode distance in the opposite direction from origin
+        if (
+          (origin.x - distance.x) >= 0 && (origin.y - distance.y >= 0) &&
+          (origin.x - distance.x) < maxx && (origin.y - distance.y < maxy)
+        ) {
+          const destination = map[origin.x - distance.x][origin.y - distance.y];
+          if (destination.frequency !== origin.frequency) {
+            destination.antinode = {
+              [origin.frequency]: true,
+            };
+          }
+        }
+        // Set an antinode distance in the same direction from here
+        if (
+          (x + distance.x) >= 0 && (y + distance.y >= 0) &&
+          (x + distance.x) < maxx && (y + distance.y < maxy)
+        ) {
+          const destination = map[x + distance.x][y + distance.y];
 
-const getNextLocation = (
-  { x, y }: { x: number; y: number },
-  direction: Direction,
-  max: { x: number; y: number },
-  distance: number,
-): { x: number; y: number } | undefined => {
-  const next: {
-    [direction in Direction]: { x: number; y: number };
-  } = {
-    [Direction.N]: { x, y: y - distance },
-    [Direction.S]: { x, y: y + distance },
-    [Direction.E]: { x: x + distance, y },
-    [Direction.W]: { x: x - distance, y },
-    [Direction.NE]: { x: x - distance, y: y - 1 },
-    [Direction.NW]: { x: x + distance, y: y - 1 },
-    [Direction.SE]: { x: x + distance, y: y + 1 },
-    [Direction.SW]: { x: x - distance, y: y + 1 },
-  };
-  const result = next[direction];
-  if (
-    (result.x! > max.x || result.x! < 0) || (result.y! > max.y || result.y! < 0)
-  ) {
-    return undefined;
-  }
-  return result;
-};
-
-const getOppositeDirection = (direction: Direction) => {
-  const opposite: {
-    [direction in Direction]: Direction;
-  } = {
-    [Direction.N]: Direction.S,
-    [Direction.S]: Direction.N,
-    [Direction.E]: Direction.W,
-    [Direction.W]: Direction.E,
-    [Direction.NE]: Direction.SW,
-    [Direction.NW]: Direction.SE,
-    [Direction.SE]: Direction.NW,
-    [Direction.SW]: Direction.NE,
-  };
-  return opposite[direction];
+          if (destination.frequency !== origin.frequency) {
+            destination.antinode = {
+              [origin.frequency]: true,
+            };
+          }
+        }
+      }
+    });
+  });
 };
 
 const setAntinodes = (map: Map<State>): void => {
@@ -72,39 +63,24 @@ const setAntinodes = (map: Map<State>): void => {
     [...new Array(maxx)].map((_, x) => {
       if (map[x][y].frequency) {
         const frequency = map[x][y].frequency;
-        // Check if there is another in line twice as far away
-        Object.values(Direction).map((direction) => {
-          const locationToCheck = getNextLocation({ x, y }, direction, {
-            x: maxx,
-            y: maxy,
-          }, 2);
-          const locationToSet = getNextLocation(
-            { x, y },
-            getOppositeDirection(direction),
-            { x: maxx, y: maxy },
-            -2,
-          );
-          return { locationToCheck, locationToSet };
-        }).forEach(
-          ({ locationToCheck, locationToSet }) => {
-            if (locationToSet && locationToCheck) {
-              const checkMap = map[locationToCheck.x][locationToCheck.y];
-              const setMap = map[locationToSet.x][locationToSet.y];
-              const isSameFrequency = frequency ===
-                checkMap.frequency;
-              if (
-                isSameFrequency
-              ) {
-                setMap
-                  .antinode[frequency] = true;
-              }
-              // map[x][y].antinode[map[x][y].frequency!] = true;
-            }
-          },
-        );
+        findAllAntinodes({ x, y, frequency }, map);
       }
     });
   });
+};
+
+const countAntinodes = (map: Map<State>): number => {
+  let count = 0;
+  const maxx = Object.keys(map).length;
+  const maxy = Object.keys(map[0]).length;
+  [...new Array(maxy)].map((_, y) => {
+    [...new Array(maxx)].map((_, x) => {
+      if (Object.values(map[x][y].antinode).length) {
+        count = count + 1;
+      }
+    });
+  });
+  return count;
 };
 
 const getMap = (mapString: string): Map<State> => {
@@ -138,4 +114,4 @@ const mapToString = (map: Map<State>): string => {
   return result;
 };
 
-export { getMap, mapToString, setAntinodes };
+export { countAntinodes, getMap, mapToString, setAntinodes };
