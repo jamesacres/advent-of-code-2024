@@ -12,14 +12,14 @@ Deno.test(function exampleDiskMapToBlocks() {
 
 Deno.test(function exampleDiskMapMoveBlocks() {
   assertEquals(
-    moveBlocks(toBlocks(example)),
-    "0099811188827773336446555566..............",
+    moveBlocks(toBlocks(example, true)),
+    "0,0,9,9,8,1,1,1,8,8,8,2,7,7,7,3,3,3,6,4,4,6,5,5,5,5,6,6,.,.,.,.,.,.,.,.,.,.,.,.,.,.",
   );
 });
 
 Deno.test(function exampleDiskMapMoveBlocksChecksum() {
   assertEquals(
-    calculateChecksum(moveBlocks(toBlocks(example))),
+    calculateChecksum(moveBlocks(toBlocks(example, true))),
     1928,
   );
 });
@@ -27,7 +27,7 @@ Deno.test(function exampleDiskMapMoveBlocksChecksum() {
 Deno.test(async function inputDiskMapMoveBlocksChecksum() {
   const input = await Deno.readTextFile("./9/input.txt");
   assertEquals(
-    calculateChecksum(moveBlocks(toBlocks(input))),
-    1928,
+    calculateChecksum(moveBlocks(toBlocks(input, true))),
+    6401092019345,
   );
 });
