@@ -73,6 +73,7 @@ const countRoutes = (
   height: number,
   originState: State,
   thisDirection?: Direction,
+  v2: boolean = false,
 ) => {
   const maxx = Object.keys(map).length - 1;
   const maxy = Object.keys(map[0]).length - 1;
@@ -101,6 +102,13 @@ const countRoutes = (
                 x: nextLocation.x,
                 y: nextLocation.y,
               });
+              if (!v2) {
+                // Count only unseen
+                count = count + 1;
+              }
+            }
+            if (v2) {
+              // Count all
               count = count + 1;
             }
           } else {
@@ -111,6 +119,7 @@ const countRoutes = (
               nextLocationState.height,
               originState,
               direction,
+              v2,
             );
           }
         }
@@ -120,7 +129,7 @@ const countRoutes = (
   return count;
 };
 
-const findTrailheadRoutes = (input: string) => {
+const findTrailheadRoutes = (input: string, v2: boolean = false) => {
   const map = getMap(input);
   const maxx = Object.keys(map).length;
   const maxy = Object.keys(map[0]).length;
@@ -128,7 +137,14 @@ const findTrailheadRoutes = (input: string) => {
     [...new Array(maxx)].map((_, x) => {
       const state = map[x][y];
       if (state.isTrailHead) {
-        state.trailCount = countRoutes(map, { x, y }, state.height, state);
+        state.trailCount = countRoutes(
+          map,
+          { x, y },
+          state.height,
+          state,
+          undefined,
+          v2,
+        );
       }
     });
   });
