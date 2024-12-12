@@ -21,6 +21,7 @@ interface Region {
   coordinates: [number, number][];
   area?: number;
   perimeter?: number;
+  sides?: number;
 }
 
 const getNeighbours = (
@@ -34,6 +35,29 @@ const getNeighbours = (
     [Direction.LEFT]: { x: x - 1, y },
     [Direction.RIGHT]: { x: x + 1, y },
   };
+};
+
+const getDiagonals = (
+  { x, y }: { x: number; y: number },
+): {
+  [direction in Direction]: { x: number; y: number };
+} => {
+  return {
+    [Direction.UP]: { x: x + 1, y: y - 1 },
+    [Direction.RIGHT]: { x: x + 1, y: y + 1 },
+    [Direction.DOWN]: { x: x - 1, y: y + 1 },
+    [Direction.LEFT]: { x: x - 1, y: y - 1 },
+  };
+};
+
+const turnRight = (direction: Direction) => {
+  const nextDirection: { [direction in Direction]: Direction } = {
+    [Direction.UP]: Direction.RIGHT,
+    [Direction.DOWN]: Direction.LEFT,
+    [Direction.LEFT]: Direction.UP,
+    [Direction.RIGHT]: Direction.DOWN,
+  };
+  return nextDirection[direction];
 };
 
 const getNextLocation = (
@@ -161,6 +185,37 @@ const calculatePerimeter = (
   return (coordinates.length * 4) - (2 * (touchCount / 2));
 };
 
+const calculateSides = (
+  coordinates: [number, number][],
+): number => {
+  let cornerCount = 0;
+  coordinates.forEach(([x, y]) => {
+    const neighbours = getNeighbours({ x, y });
+    const diagonals = getDiagonals({ x, y });
+    Object.values(Direction).map((direction, i) => {
+      const a = neighbours[direction];
+      const b = neighbours[turnRight(direction)];
+      const diagonal = diagonals[direction];
+      // Inner corner if something to our right and below but nothing on diagonal
+      if (
+        coordinates.find(([x, y]) => x === a.x && y === a.y) &&
+        coordinates.find(([x, y]) => x === b.x && y === b.y) &&
+        !coordinates.find(([x, y]) => x === diagonal.x && y === diagonal.y)
+      ) {
+        cornerCount = cornerCount + 1;
+      }
+      // Outer corner if nothing to our right and below
+      if (
+        !coordinates.find(([x, y]) => x === a.x && y === a.y) &&
+        !coordinates.find(([x, y]) => x === b.x && y === b.y)
+      ) {
+        cornerCount = cornerCount + 1;
+      }
+    });
+  });
+  return cornerCount;
+};
+
 const stringToRegions = (gardenString: string): Region[] => {
   const garden = getGarden(gardenString);
   const max: [number, number] = [
@@ -173,6 +228,7 @@ const stringToRegions = (gardenString: string): Region[] => {
       (region) => {
         region.area = region.coordinates.length;
         region.perimeter = calculatePerimeter(region.coordinates, max);
+        region.sides = calculateSides(region.coordinates);
         return region;
       },
     );

@@ -32,3 +32,24 @@ Deno.test(async function inputRegionCost() {
     1431316,
   );
 });
+
+Deno.test(function exampleRegionCostSides() {
+  assertEquals(
+    stringToRegions(example).reduce(
+      (result, region) => result + (region.area! * region.sides!),
+      0,
+    ),
+    1206,
+  );
+});
+
+Deno.test(async function inputRegionCost() {
+  const input = await Deno.readTextFile("./12/input.txt");
+  assertEquals(
+    stringToRegions(input).reduce(
+      (result, region) => result + (region.area! * region.sides!),
+      0,
+    ),
+    821428,
+  );
+});
