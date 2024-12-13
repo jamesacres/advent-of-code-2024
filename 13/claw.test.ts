@@ -142,3 +142,18 @@ Deno.test(async function inputClawMachinesTotalCost() {
     26005,
   );
 });
+
+Deno.test(async function inputClawMachinesTotalCost() {
+  const input = await Deno.readTextFile("./13/input.txt");
+  const machines = parseInput(input);
+  machines.forEach((machine) => {
+    machine.prize.x = machine.prize.x + 10000000000000;
+    machine.prize.y = machine.prize.y + 10000000000000;
+  });
+  assertEquals(
+    machines.map(buttonPresses).map((result) =>
+      result ? getPrice("A") * result.a + getPrice("B") * result.b : undefined
+    ).reduce((result: number, price) => result + (price || 0), 0),
+    105620095782547,
+  );
+});
