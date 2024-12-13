@@ -1,5 +1,5 @@
 import { assertEquals } from "@std/assert/equals";
-import { buttonPresses, parseInput } from "./claw.ts";
+import { buttonPresses, getPrice, parseInput } from "./claw.ts";
 
 const example = `Button A: X+94, Y+34
 Button B: X+22, Y+67
@@ -92,9 +92,53 @@ Deno.test(function exampleClawMachines() {
   );
 });
 
-Deno.test(function exampleClawMachines() {
+Deno.test(function exampleClawMachinesMinButtonPresses() {
   assertEquals(
     parseInput(example).map(buttonPresses),
-    [],
+    [
+      {
+        a: 80,
+        b: 40,
+      },
+      undefined,
+      {
+        a: 38,
+        b: 86,
+      },
+      undefined,
+    ],
+  );
+});
+
+Deno.test(function exampleClawMachinesMinCost() {
+  assertEquals(
+    parseInput(example).map(buttonPresses).map((result) =>
+      result ? getPrice("A") * result.a + getPrice("B") * result.b : undefined
+    ),
+    [
+      280,
+      undefined,
+      200,
+      undefined,
+    ],
+  );
+});
+
+Deno.test(function exampleClawMachinesTotalCost() {
+  assertEquals(
+    parseInput(example).map(buttonPresses).map((result) =>
+      result ? getPrice("A") * result.a + getPrice("B") * result.b : undefined
+    ).reduce((result: number, price) => result + (price || 0), 0),
+    480,
+  );
+});
+
+Deno.test(async function inputClawMachinesTotalCost() {
+  const input = await Deno.readTextFile("./13/input.txt");
+  assertEquals(
+    parseInput(input).map(buttonPresses).map((result) =>
+      result ? getPrice("A") * result.a + getPrice("B") * result.b : undefined
+    ).reduce((result: number, price) => result + (price || 0), 0),
+    26005,
   );
 });
