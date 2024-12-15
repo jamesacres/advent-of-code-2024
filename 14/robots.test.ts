@@ -1,5 +1,5 @@
 import { assertEquals } from "@std/assert/equals";
-import { move, parseInput, quadrants } from "./robots.ts";
+import { move, parseInput, quadrants, render, Robot } from "./robots.ts";
 
 const example = `p=0,4 v=3,-3
 p=6,3 v=-1,-3
@@ -16,7 +16,7 @@ p=9,5 v=-3,-3`;
 
 Deno.test(function exampleNewRobotPositions() {
   assertEquals(
-    move(parseInput(example), 100, [11, 7]),
+    move(parseInput(example), 100, [11, 7]).robotCounts,
     {
       "0,2": 1,
       "1,3": 1,
@@ -34,7 +34,7 @@ Deno.test(function exampleNewRobotPositions() {
 
 Deno.test(function exampleNewRobotQuadrants() {
   assertEquals(
-    quadrants(move(parseInput(example), 100, [11, 7]), [11, 7]),
+    quadrants(move(parseInput(example), 100, [11, 7]).robotCounts, [11, 7]),
     {
       q1: 1,
       q2: 3,
@@ -46,7 +46,9 @@ Deno.test(function exampleNewRobotQuadrants() {
 
 Deno.test(function exampleNewSafetyFactor() {
   assertEquals(
-    Object.values(quadrants(move(parseInput(example), 100, [11, 7]), [11, 7]))
+    Object.values(
+      quadrants(move(parseInput(example), 100, [11, 7]).robotCounts, [11, 7]),
+    )
       .reduce((result, count) => result * count, 1),
     12,
   );
@@ -56,9 +58,29 @@ Deno.test(async function inputNewSafetyFactor() {
   const input = await Deno.readTextFile("./14/input.txt");
   assertEquals(
     Object.values(
-      quadrants(move(parseInput(input), 100, [101, 103]), [101, 103]),
+      quadrants(move(parseInput(input), 100, [101, 103]).robotCounts, [
+        101,
+        103,
+      ]),
     )
       .reduce((result, count) => result * count, 1),
     217132650,
   );
+});
+
+Deno.test(async function inputChristmasTree() {
+  const input = await Deno.readTextFile("./14/input.txt");
+  const robots: Robot[] = parseInput(input);
+  let robotCounts: { [position: string]: number };
+  let seconds = 6516;
+  while (true) {
+    ({ robotCounts } = move(robots, seconds, [101, 103]));
+    console.info(seconds);
+    const drawing = render(robotCounts, [101, 103]);
+    if (drawing.includes(".        .............        .")) {
+      console.info(drawing);
+      return;
+    }
+    seconds = seconds + 1;
+  }
 });

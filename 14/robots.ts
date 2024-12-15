@@ -1,4 +1,4 @@
-interface Robot {
+export interface Robot {
   position: [number, number];
   velocity: [number, number];
 }
@@ -23,16 +23,16 @@ const move = (
   oldRobots: Robot[],
   seconds: number,
   robotArea: [number, number],
-): { [position: string]: number } => {
+): { robots: Robot[]; robotCounts: { [position: string]: number } } => {
   const robotCounts: { [position: string]: number } = {};
-  oldRobots.map((robot) => {
+  const newRobots = oldRobots.map((robot) => {
     const [x, y] = robot.position;
     const [dx, dy] = robot.velocity.map((velocity) => velocity * seconds);
     // If robot moves area width/height they will be back where they started on x/y
     // So let's move the remainder only
     const negativex = dx < 0 ? -1 : 1;
     const negativey = dy < 0 ? -1 : 1;
-    const position = [
+    const position: [number, number] = [
       x + (Math.abs(dx) % robotArea[0]) * negativex,
       y + (Math.abs(dy) % robotArea[1]) * negativey,
     ];
@@ -53,7 +53,7 @@ const move = (
       position,
     };
   });
-  return robotCounts;
+  return { robotCounts, robots: newRobots };
 };
 
 const quadrants = (
@@ -90,4 +90,20 @@ const quadrants = (
   });
 };
 
-export { move, parseInput, quadrants };
+const render = (
+  robotCounts: { [position: string]: number },
+  robotArea: [number, number],
+) => {
+  let result = "";
+  const positions = Object.keys(robotCounts);
+  [...new Array(robotArea[1])].map((_, y) => {
+    [...new Array(robotArea[0])].map((_, x) => {
+      const char = positions.includes(`${x},${y}`) ? "." : " ";
+      result = `${result}${char}`;
+    });
+    result = `${result}\n`;
+  });
+  return result;
+};
+
+export { move, parseInput, quadrants, render };
