@@ -240,9 +240,6 @@ const move = (
         // Find next empty space in this direction
         let emptySpaces;
 
-        nextState === State.BOX_LEFT ||
-          nextState === State.BOX_RIGHT;
-
         let spacesToCheck: { x: number; y: number }[] = [];
         if (nextState === State.BOX_LEFT) {
           // Check entire box
