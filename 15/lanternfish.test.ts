@@ -57,3 +57,54 @@ Deno.test(async function inputNewSafetyFactor() {
     1430536,
   );
 });
+
+Deno.test(function exampleMapV2ToString() {
+  const { map } = parseInput(example, true);
+  assertEquals(
+    mapToString(map),
+    `####################
+##....[]....[]..[]##
+##............[]..##
+##..[][]....[]..[]##
+##....[]@.....[]..##
+##[]##....[]......##
+##[]....[]....[]..##
+##..[][]..[]..[][]##
+##........[]......##
+####################`,
+  );
+});
+
+Deno.test(function exampleMapV2() {
+  const { map, initialRobotPosition, directions } = parseInput(example, true);
+  assertEquals(
+    mapToString(move(map, initialRobotPosition, directions)),
+    `####################
+##[].......[].[][]##
+##[]...........[].##
+##[]........[][][]##
+##[]......[]....[]##
+##..##......[]....##
+##..[]............##
+##..@......[].[][]##
+##......[][]..[]..##
+####################`,
+  );
+});
+
+Deno.test(function exampleNewSafetyFactorV2() {
+  const { map, initialRobotPosition, directions } = parseInput(example, true);
+  assertEquals(
+    mapSumGPS(move(map, initialRobotPosition, directions)),
+    9021,
+  );
+});
+
+Deno.test(async function inputNewSafetyFactorV2() {
+  const input = await Deno.readTextFile("./15/input.txt");
+  const { map, initialRobotPosition, directions } = parseInput(input, true);
+  assertEquals(
+    mapSumGPS(move(map, initialRobotPosition, directions)),
+    1452348,
+  );
+});
